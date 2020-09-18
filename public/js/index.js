@@ -58,6 +58,9 @@ $(document).ready(() => {
   if (token) {
     // create connection
     const connection = io.connect('ws://localhost:2111', {
+      query: {
+        token, // token will always be passed with this connection
+      },
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
@@ -102,6 +105,12 @@ $(document).ready(() => {
   Next
 </button>
         `);
+
+        // handle the next button
+        $('#next').on('click', () => connection.emit('m-next'));
+
+        // handle the previous button
+        $('#previous').on('click', () => connection.emit('m-previous'));
       });
     });
 
