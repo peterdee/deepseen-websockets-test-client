@@ -36,6 +36,7 @@ const home = async (anchor = '') => {
         Complete logout
       </button>
       <div id="${socketsAnchor}"></div>
+      <div id="notifications"></div>
     `);
 
     $('#logout').on('click', () => {
