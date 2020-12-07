@@ -9,12 +9,12 @@ const EVENTS = {
     PLAY_PAUSE: 'PLAY_PAUSE',
     PLAY_PREVIOUS: 'PLAY_PREVIOUS',
     STOP_PLAYBACK: 'STOP_PLAYBACK',
-    UPDATE_CURRENT_TRACK: 'UPDATE_CURRENT_TRACK',
-    UPDATE_PLAYBACK_STATUS: 'UPDATE_PLAYBACK_STATUS',
   },
   CLIENT_DISCONNECTED: 'CLIENT_DISCONNECTED',
   NEW_CLIENT_CONNECTED: 'NEW_CLIENT_CONNECTED',
   ROOM_STATUS: 'ROOM_STATUS',
+  UPDATE_CURRENT_TRACK: 'UPDATE_CURRENT_TRACK',
+  UPDATE_PLAYBACK_STATUS: 'UPDATE_PLAYBACK_STATUS',
 };
 
 /**
@@ -75,6 +75,9 @@ const sockets = async (anchor = '', token = '') => {
         <div id="web-status">
           Web app is not connected!
         </div>
+        <div id="track"></div>
+        <div id="volume"></div>
+        <div id="progress"></div>
       `);
 
       desktopStatus = $('#desktop-status');
@@ -152,6 +155,17 @@ const sockets = async (anchor = '', token = '') => {
             `);
           }
         }
+      },
+    );
+
+    // on track change
+    connection.on(
+      EVENTS.UPDATE_CURRENT_TRACK,
+      (data) => {
+        const { track = {} } = data;
+        $('#track').empty().append(`
+          <div>${track.name} (${track.duration})</div>
+        `);
       },
     );
 
