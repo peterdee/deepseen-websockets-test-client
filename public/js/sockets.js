@@ -12,6 +12,7 @@ const EVENTS = {
     UPDATE_CURRENT_TRACK: 'UPDATE_CURRENT_TRACK',
     UPDATE_PLAYBACK_STATUS: 'UPDATE_PLAYBACK_STATUS',
   },
+  CLIENT_DISCONNECTED: 'CLIENT_DISCONNECTED',
   NEW_CLIENT_CONNECTED: 'NEW_CLIENT_CONNECTED',
   ROOM_STATUS: 'ROOM_STATUS',
 };
@@ -108,10 +109,33 @@ const sockets = async (anchor = '', token = '') => {
     connection.on(
       EVENTS.NEW_CLIENT_CONNECTED,
       (data) => {
-        console.log(data);
+        const { client = '' } = data;
         $('#notifications').empty().append(`
-          <div>${data.client.toUpperCase()} connected!</div>
+          <div>${client.toUpperCase()} connected!</div>
         `);
+
+        if (client === 'desktop') {
+          $('#desktop-status').empty().append(`
+            <div>Desktop app is connected!</div>
+          `);
+        }
+        return setTimeout(() => $(`#notifications`).empty(), 5000);
+      },
+    );
+
+    connection.on(
+      EVENTS.CLIENT_DISCONNECTED,
+      (data) => {
+        const { client = '' } = data;
+        $('#notifications').empty().append(`
+          <div>${data.client.toUpperCase()} disconnected!</div>
+        `);
+
+        if (client === 'desktop') {
+          $('#desktop-status').empty().append(`
+            <div>Desktop app is not connected!</div>
+          `);
+        }
         return setTimeout(() => $(`#notifications`).empty(), 5000);
       },
     );
