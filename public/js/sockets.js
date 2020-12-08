@@ -14,8 +14,12 @@ const EVENTS = {
   NEW_CLIENT_CONNECTED: 'NEW_CLIENT_CONNECTED',
   ROOM_STATUS: 'ROOM_STATUS',
   UPDATE_CURRENT_TRACK: 'UPDATE_CURRENT_TRACK',
+  UPDATE_MUTE: 'UPDATE_MUTE',
   UPDATE_PLAYBACK_STATUS: 'UPDATE_PLAYBACK_STATUS',
+  UPDATE_VOLUME: 'UPDATE_VOLUME',
 };
+
+let MUTED = false;
 
 /**
  * Connect to the Websockets server
@@ -39,8 +43,6 @@ const sockets = async (anchor = '', token = '') => {
       reconnectionDelayMax: 10000,
       withCredentials: true,
     });
-
-    let desktopStatus, webStatus;
 
     connection.on(EVENTS.INCOMING.connect, () => {
       $(`#${anchor}`).empty().append(`
@@ -76,7 +78,20 @@ const sockets = async (anchor = '', token = '') => {
           Web app is not connected!
         </div>
         <div id="track"></div>
-        <div id="volume"></div>
+        <div>
+          <input
+            id="volume"
+            max="100"
+            min="0"
+            type="range"
+          />
+          <button
+            id="mute"
+            type="button"
+          >
+            ${MUTED ? 'Unmute' : 'Mute'}
+          </button>
+        </div>
         <div id="progress"></div>
       `);
 
@@ -87,6 +102,22 @@ const sockets = async (anchor = '', token = '') => {
       $('#play').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_PAUSE));
       $('#previous').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_PREVIOUS));
       $('#stop').on('click', () => connection.emit(EVENTS.OUTGOING.STOP_PLAYBACK));
+      
+      $('#mute').on('click', () => connection.emit(
+        EVENTS.UPDATE_MUTE,
+        {
+          isMuted: !MUTED,
+        },
+      ));
+      $('#volume').on('change', (event) => {
+        MUTED = !MUTED;
+        return connection.emit(
+          EVENTS.UPDATE_VOLUME,
+          { 
+            volume: event.target.value,
+          },
+        );
+      });
     });
 
     connection.on(
@@ -166,6 +197,21 @@ const sockets = async (anchor = '', token = '') => {
         $('#track').empty().append(`
           <div>${track.name} (${track.duration})</div>
         `);
+      },
+    );
+
+    // on volume update
+    connection.on(
+      EVENTS.UPDATE_VOLUME,
+      (data) => $(`#volume`).val(String(data.volume * 100)),
+    );
+
+    // on mute update
+    connection.on(
+      EVENTS.UPDATE_MUTE,
+      (data) => {
+        const { isMuted = false } = data;
+        MUTED = isMuted;
       },
     );
 
