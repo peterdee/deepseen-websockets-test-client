@@ -8,18 +8,31 @@ const EVENTS = {
     PLAY_NEXT: 'PLAY_NEXT',
     PLAY_PAUSE: 'PLAY_PAUSE',
     PLAY_PREVIOUS: 'PLAY_PREVIOUS',
-    STOP_PLAYBACK: 'STOP_PLAYBACK',
   },
   CLIENT_DISCONNECTED: 'CLIENT_DISCONNECTED',
+  CONNECT_ERROR: 'connect_error',
+  DESKTOP_INIT: 'DESKTOP_INIT',
   NEW_CLIENT_CONNECTED: 'NEW_CLIENT_CONNECTED',
   ROOM_STATUS: 'ROOM_STATUS',
+  STOP_PLAYBACK: 'STOP_PLAYBACK',
   UPDATE_CURRENT_TRACK: 'UPDATE_CURRENT_TRACK',
   UPDATE_MUTE: 'UPDATE_MUTE',
-  UPDATE_PLAYBACK_STATUS: 'UPDATE_PLAYBACK_STATUS',
+  UPDATE_PLAYBACK_STATE: 'UPDATE_PLAYBACK_STATE',
+  UPDATE_PROGRESS: 'UPDATE_PROGRESS',
   UPDATE_VOLUME: 'UPDATE_VOLUME',
 };
 
 let MUTED = false;
+let PAUSED = true;
+let TIMER = null;
+let TRACK = {};
+
+const options = {
+  elapsed: 0,
+  muted: false,
+  paused: true,
+  timer: null,
+};
 
 /**
  * Connect to the Websockets server
@@ -79,6 +92,7 @@ const sockets = async (anchor = '', token = '') => {
         </div>
         <div id="track"></div>
         <div>
+          Volume:
           <input
             id="volume"
             max="100"
@@ -89,10 +103,20 @@ const sockets = async (anchor = '', token = '') => {
             id="mute"
             type="button"
           >
-            ${MUTED ? 'Unmute' : 'Mute'}
+            Mute
           </button>
         </div>
-        <div id="progress"></div>
+        <div>
+          Progress:
+          <input
+            id="progress"
+            max="200"
+            min="0"
+            step="1"
+            style="width: 300px;"
+            type="range"
+          />
+        </div>
       `);
 
       desktopStatus = $('#desktop-status');
@@ -101,7 +125,7 @@ const sockets = async (anchor = '', token = '') => {
       $('#next').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_NEXT));
       $('#play').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_PAUSE));
       $('#previous').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_PREVIOUS));
-      $('#stop').on('click', () => connection.emit(EVENTS.OUTGOING.STOP_PLAYBACK));
+      $('#stop').on('click', () => connection.emit(EVENTS.STOP_PLAYBACK));
       
       $('#mute').on('click', () => connection.emit(
         EVENTS.UPDATE_MUTE,
@@ -115,6 +139,16 @@ const sockets = async (anchor = '', token = '') => {
           EVENTS.UPDATE_VOLUME,
           { 
             volume: event.target.value,
+          },
+        );
+      });
+      $('#progress').on('change', (event) => {
+        const { value = 0 } = event.target;
+        options.elapsed = (TRACK.duration / 200) * value;
+        connection.emit(
+          EVENTS.UPDATE_PROGRESS,
+          { 
+            progress: value,
           },
         );
       });
@@ -194,9 +228,21 @@ const sockets = async (anchor = '', token = '') => {
       EVENTS.UPDATE_CURRENT_TRACK,
       (data) => {
         const { track = {} } = data;
+        TRACK = track;
+        $('#progress').val(0);
         $('#track').empty().append(`
           <div>${track.name} (${track.duration})</div>
         `);
+
+        options.elapsed = 0;
+        options.timer = setInterval(() => {
+          if (options.elapsed >= TRACK.duration) {
+            return clearInterval(options.timer);
+          }
+
+          options.elapsed += 0.25;
+          $('#progress').val(options.elapsed / (TRACK.duration / 200));
+        }, 250);
       },
     );
 
@@ -212,6 +258,48 @@ const sockets = async (anchor = '', token = '') => {
       (data) => {
         const { isMuted = false } = data;
         MUTED = isMuted;
+      },
+    );
+
+    // on progress update
+    connection.on(
+      EVENTS.UPDATE_PROGRESS,
+      (data) => {
+        const { progress = 0 } = data;
+        options.elapsed = (TRACK.duration / 200) * progress;
+        return $('#progress').val(progress);
+      },
+    );
+
+    // on stop click
+    connection.on(
+      EVENTS.STOP_PLAYBACK,
+      () => {
+        options.elapsed = 0;
+        options.paused = true;
+        clearInterval(options.timer);
+        return $('#progress').val(0);
+      },
+    );
+
+    // on play / pause click
+    connection.on(
+      EVENTS.UPDATE_PLAYBACK_STATE,
+      (data) => {
+        const { isPaused = true } = data;
+        options.paused = isPaused;
+        if (isPaused) {
+          return clearInterval(options.timer);
+        }
+
+        options.timer = setInterval(() => {
+          if (options.elapsed >= TRACK.duration) {
+            return clearInterval(options.timer);
+          }
+          console.log('tick', options.elapsed);
+          options.elapsed += 0.25;
+          $('#progress').val(options.elapsed / (TRACK.duration / 200));
+        }, 250);
       },
     );
 
