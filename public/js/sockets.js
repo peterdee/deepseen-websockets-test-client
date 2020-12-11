@@ -208,6 +208,32 @@ const sockets = async (anchor = '', token = '') => {
       },
     );
 
+    // get initial desktop state
+    connection.on(
+      EVENTS.DESKTOP_INIT,
+      (data) => {
+        const {
+          elapsed = 0,
+          isMuted = false,
+          isPlaying = false,
+          progress = 0,
+          track = {},
+          volume = 0,
+        } = data;
+        options.elapsed = elapsed;
+        options.muted = isMuted;
+        options.paused = !isPlaying;
+        TRACK = track;
+        console.log(data)
+        $(`#progress`).val(String(progress));
+        $('#track').empty().append(`
+          <div>${TRACK.name} (${TRACK.duration})</div>
+        `);
+        $(`#volume`).val(String(volume * 100));
+      },
+    );
+
+    // get room status
     connection.on(
       EVENTS.ROOM_STATUS,
       (data) => {
