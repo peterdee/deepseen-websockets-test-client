@@ -1,7 +1,13 @@
 const BACKEND_ORIGIN = 'http://localhost:1337';
 const WS_ORIGIN = 'ws://localhost:9500';
 
-const CLIENT_TYPE = 'mobile';
+const CLIENTS = {
+  desktop: 'desktop',
+  mobile: 'mobile',
+  web: 'web',
+};
+
+const CLIENT_TYPE = CLIENTS.desktop;
 
 $(document).ready(async () => {
   $('#root').empty().append(`
