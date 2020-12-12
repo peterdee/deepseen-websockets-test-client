@@ -160,9 +160,7 @@ const sockets = async (anchor = '', token = '') => {
         $(`#${anchor}`).empty().append(`
           <div>Sockets: client type is already online!</div>
         `);
-        connection.disconnect();
-        connection.close();
-        console.log('here');
+        return connection.disconnect();
       },
     );
 
