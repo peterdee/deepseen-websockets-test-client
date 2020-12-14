@@ -22,7 +22,7 @@ const home = async (anchor = '') => {
     });
 
     $(`#content`).empty().append(`
-      <div>Hi, ${user.name}!</div>
+      <div>Hi, ${user.firstName} ${user.lastName}!</div>
       <button
         id="logout"
         type="button"
