@@ -8,8 +8,10 @@ const home = async (anchor = '') => {
   const token = localStorage.getItem('token');
 
   $(`#${anchor}`).empty().append(`
-    <h1>Home</h1>
-    <div id="content">Loading...</div>
+    <div style="background-color: black; color: white; padding: 36px;">
+      <h1 style="text-align: center; color: turquoise"><b>Home</b></h1>
+      <div id="content">Loading...</div>
+    </div>
   `);
 
   try {

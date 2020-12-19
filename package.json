@@ -1,10 +1,32 @@
 {
   "name": "deepseen-sockets-test-client",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
+  "author": {
+    "name": "Peter Dyumin",
+    "url": "https://github.com/peterdee"
+  },
+  "description": "Testing utility for the Deepseen project",
+  "homepage": "https://github.com/peterdee/deepseen-websockets-test-client",
+  "license": "MIT",
   "scripts": {
     "start": "nodemon ./bin/www"
   },
+  "engines": {
+    "node": "~14.15.1",
+    "npm": "~6.14.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterdee/deepseen-websockets-test-client"
+  },
+  "keywords": [
+    "Deepseen",
+    "Express",
+    "jQuery",
+    "Node",
+    "Socket.IO"
+  ],
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",

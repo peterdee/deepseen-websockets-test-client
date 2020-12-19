@@ -1,5 +1,8 @@
-const BACKEND_ORIGIN = 'http://localhost:1337';
-const WS_ORIGIN = 'ws://localhost:9500';
+// const BACKEND_ORIGIN = 'http://localhost:1337';
+// const WS_ORIGIN = 'ws://localhost:9500';
+
+const BACKEND_ORIGIN = 'https://deepseen-backend.herokuapp.com';
+const WS_ORIGIN = 'https://deepseen-ws.herokuapp.com';
 
 const CLIENTS = {
   desktop: 'desktop',
