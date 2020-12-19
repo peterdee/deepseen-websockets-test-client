@@ -1,8 +1,8 @@
 ## deepseen-sockets-test-client
 
-A Websockets testing suite for the Deepseen project
+Testing utility for the Deepseen project
 
-This application's logic is going to be moved into a proper React Native application later on
+This application's logic is going to be moved into a proper React Native application
 
 Stack: [Node](https://nodejs.org), [Express](http://expressjs.com), [Socket.IO](https://socket.io), [jQuery](https://jquery.com)
 
