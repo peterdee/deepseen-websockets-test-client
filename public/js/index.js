@@ -10,7 +10,7 @@ const CLIENTS = {
   web: 'web',
 };
 
-const CLIENT_TYPE = CLIENTS.mobile;
+const CLIENT_TYPE = CLIENTS.web;
 
 $(document).ready(async () => {
   $('#root').empty().append(`

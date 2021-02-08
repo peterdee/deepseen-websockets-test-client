@@ -10,6 +10,7 @@ const EVENTS = {
     PLAY_PREVIOUS: 'PLAY_PREVIOUS',
   },
   CLIENT_DISCONNECTED: 'CLIENT_DISCONNECTED',
+  COMPLETE_LOGOUT: 'COMPLETE_LOGOUT',
   CONNECT_ERROR: 'connect_error',
   DESKTOP_INIT: 'DESKTOP_INIT',
   NEW_CLIENT_CONNECTED: 'NEW_CLIENT_CONNECTED',
@@ -117,10 +118,18 @@ const sockets = async (anchor = '', token = '') => {
             type="range"
           />
         </div>
+        <button
+          id="logout-websockets"
+          type="button"
+        >
+          Complete logout (Websockets)
+        </button>
       `);
 
       desktopStatus = $('#desktop-status');
       webStatus = $('#web-status');
+
+      $('#logout-websockets').on('click', () => connection.emit(EVENTS.COMPLETE_LOGOUT));
 
       $('#next').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_NEXT));
       $('#play').on('click', () => connection.emit(EVENTS.OUTGOING.PLAY_PAUSE));
